@@ -24,6 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 urlpatterns = [
     url(r'', include('matching.urls')),
+    url(r'', include('waiting.urls')),
     url(r'^admin/', admin.site.urls),
 ]
 

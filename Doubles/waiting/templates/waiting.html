@@ -1,0 +1,70 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <form action="{% url 'waiting:matching_for_other' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="inputName"> 名前: </label>
+                        <input type="text" class="form-control" name="name" id="inputName">
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="inputSex"> 男: </label>
+                        <input class="form-check-input" type="radio" name="sex" id="inputSex1" value="male">
+                    </div>
+                    <div class="form-check">
+                        <label class="form-check-label" for="inputSex"> 女: </label>
+                        <input class="form-check-input" type="radio" name="sex" id="inputSex2" value="female">
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" class="form-control" id="latitude" name="latitude" value="">
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" class="form-control" id="longitude" name="longitude" value="">
+                    </div>
+                    <button type="submit" class="btn btn-primary"> 送信 </button>
+                </form>
+            </div>
+        </div>
+        <script>
+            var form_latitude = document.getElementById("latitude");
+            var form_longitude = document.getElementById("longitude");
+            function getPosition() {
+                // 現在地を取得
+                navigator.geolocation.getCurrentPosition(
+                    // 取得成功した場合
+                    function(position) {
+                        // alert("緯度:"+position.coords.latitude+",経度"+position.coords.longitude);
+                        form_latitude.value = position.coords.latitude;
+                        form_longitude.value = position.coords.longitude;
+                    },
+                    // 取得失敗した場合
+                    function(error) {
+                        switch (error.code) {
+                            case 1: //PERMISSION_DENIED
+                                alert("位置情報の利用が許可されていません");
+                                break;
+                            case 2: //POSITION_UNAVAILABLE
+                                alert("現在位置が取得できませんでした");
+                                break;
+                            case 3: //TIMEOUT
+                                alert("タイムアウトになりました");
+                                break;
+                            default:
+                                alert("その他のエラー(エラーコード:" + error.code + ")");
+                                break;
+                        }
+                    }
+                );
+            }
+            getPosition();
+        </script>
+
+    </body>
+</html>
