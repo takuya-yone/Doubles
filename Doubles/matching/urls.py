@@ -5,5 +5,5 @@ from . import views
 app_name = 'matching'
 
 urlpatterns = [
-    url(r'^matching$', views.map, name='map'),
+    url(r'^map$', views.map, name='map'),
     ]
