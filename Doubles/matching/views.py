@@ -20,7 +20,7 @@ def map(request):
     res = requests.get(url ,headers=headers)
 
     data = res.json()
-    print((data['records']))
+    # print((data['records']))
     dct = {'data':json.dumps(data)}
     # req = urllib.request.get(url, json.dumps(data).encode(), headers)
     # with urllib.request.urlopen(req) as res:
