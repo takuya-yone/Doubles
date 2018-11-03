@@ -1,1 +1,139 @@
-helloworld
+ {% load static %}
+ <head>
+   <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/leaflet.js' %}"></script>
+   <link rel="stylesheet" type="text/css" href="{% static 'css/leaflet.css' %}" />
+   <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}" />
+ </head>
+
+<body>
+<div id='map_canvas' class="col-sm-12" style="height:100%">
+</body>
+
+<script type="text/javascript">
+    // var bus_icon = L.icon({
+    //     iconUrl: "{% static "img/bus_img/minato_bus_sample004.png" %}",
+    //     iconRetinaUrl: "{% static "img/bus_img/minato_bus_sample004.png" %}",
+    //     iconSize: [30, 30],
+    //     iconAnchor: [15, 15],
+    //     popupAnchor: [0, -14],
+    // });
+    // var busstop_icon = L.icon({
+    //     iconUrl: "{% static "img/stand.png" %}",
+    //     iconRetinaUrl: "{% static "img/stand.png" %}",
+    //     iconSize: [15, 24],
+    //     iconAnchor: [15, 24],
+    //     popupAnchor: [-13, -38],
+    // });
+    // var update_time = 5000;
+    // var center_lat = {{map_center_lat}}; //初期地図の中心点を定義
+    // var center_lng = {{map_center_lng}}; //初期地図の中心点を定義
+    // var marker = new Array();
+    // var bus_list = new Array();
+    // var distance_list = new Array();
+    // var busStops = {{stops | safe}}
+    // var route_id = {{route_id | safe}}
+    // var selecting_ID;
+    // var selecting_lat;
+    // var selecting_lng;
+    // var bus_marker_layer = new L.FeatureGroup();
+    // //var busStops = {{stops | safe}}
+    var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    });
+    // var baseLayers = {
+    //     "OpenStreetMap": tileLayer
+    // };
+    var map = L.map('map_canvas', {
+        zoomControl: true,
+        // layers: [bus_marker_layer]
+    });
+    // //車両の角度計算
+    // function geoDirection(lat1, lng1, lat2, lng2) {
+    //     var Y = Math.cos(lng2 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180 - lat1 * Math.PI / 180);
+    //     var X = Math.cos(lng1 * Math.PI / 180) * Math.sin(lng2 * Math.PI / 180) - Math.sin(lng1 * Math.PI / 180) * Math.cos(lng2 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180 - lat1 * Math.PI / 180);
+    //     var dirE0 = 180 * Math.atan2(Y, X) / Math.PI;
+    //     if (dirE0 < 0) {
+    //         dirE0 = dirE0 + 360;
+    //     }
+    //     var dirN0 = (dirE0 + 90) % 360;
+    //     return dirN0;
+    // }
+    makemap();
+    // L.control.scale().addTo(map);
+    // //var stops = {{stops | safe}}
+    // //console.log(stops)
+    // $.getJSON("now_user",
+    //     function(bus_data) {
+    //         realtime_data = bus_data;
+    //         console.log("data initialized!!!")
+    //         set_bus_markers();
+    //     });
+    // function update() {
+    //     $.getJSON("now_user",
+    //         function(bus_data) {
+    //             realtime_data = bus_data;
+    //             console.log("data updated!!!")
+    //         }
+    //     );
+    //     setTimeout(function() {
+    //         update()
+    //         update_bus_markers_position();
+    //         //update_info()
+    //         //make_distance_list();
+    //     }, update_time);
+    // }
+    // update();
+    // function update_bus_markers_position() {
+    //     Object.keys(realtime_data).forEach(function(key) {
+    //       if(realtime_data[key].bus_root==route_id){
+    //         if(realtime_data[key].kmh>10){
+    //           eval("busMarker" + realtime_data[key].bus + ".setRotationAngle(Math.ceil(geoDirection(Number(busMarker" + realtime_data[key].bus + "._latlng.lat),Number(busMarker" + realtime_data[key].bus +"._latlng.lng),Number(realtime_data[key].lat),Number(realtime_data[key].lng))));")
+    //         }
+    //         //緯度経度が0ならマーカー位置を更新しない
+    //         if(realtime_data[key].lat != 0 && realtime_data[key].lng != 0){
+    //           eval("busMarker" + realtime_data[key].bus + ".setLatLng([Number(realtime_data[key].lat),Number(realtime_data[key].lng)]).update();")
+    //         }
+    //       }
+    //     });
+    // }
+    // function set_bus_markers() {
+    //     Object.keys(realtime_data).forEach(function(key) {
+    //       console.log(realtime_data[key].bus_root)
+    //       if(realtime_data[key].bus_root==route_id){
+    //         eval("busMarker" + realtime_data[key].bus + " = new L.marker([Number(realtime_data[key].lat), Number(realtime_data[key].lng)], {icon: bus_icon}).on('click', markerClick);")
+    //         eval("busMarker" + realtime_data[key].bus + ".ID = realtime_data[key].bus")
+    //         eval("bus_marker_layer.addLayer(busMarker" + realtime_data[key].bus + ")")
+    //         eval("busMarker" + realtime_data[key].bus + ".bindPopup('<h4>'+realtime_data[key].bus+'</h4>')")
+    //         //初期バスマーカーの角度を右向きに
+    //         eval("busMarker" + realtime_data[key].bus + ".setRotationAngle(90)")
+    //       }
+    //     });
+    // }
+    // function markerClick(e) {
+    //     var clicked_marker_latlng = this.getLatLng();
+    //     map.setView([clicked_marker_latlng.lat, clicked_marker_latlng.lng]);
+    //     selecting_ID = "bus_" + this.ID;
+    //     //console.log('selecting_ID:' + selecting_ID)
+    //     //alert("ID：" + this.ID + "を選択しました");
+    // }
+    // function get_nearest_busstop() {
+    //     distance_list.length = 0;
+    //     for (var i = 0; i < busStops.length; i++) {
+    //         var dis = Math.abs(realtime_data[selecting_ID].lat - busStops[i].lat) + Math.abs(realtime_data[selecting_ID].lng - busStops[i].lng)
+    //         distance_list.push(dis)
+    //     }
+    //     return busStops[distance_list.indexOf(Math.min.apply(null, distance_list))].name
+    // }
+    function makemap() {
+        // for (var i = 0; i < busStops.length; i++) {
+        //     var busstopMarker = L.marker([busStops[i].lat, busStops[i].lng], {
+        //         icon: busstop_icon
+        //     });
+        //     busstopMarker.addTo(map);
+        //     busstopMarker.bindPopup('<a href="http://www.kobe-minato.co.jp/ashi-syuku.html">' + busStops[i].name + '</a>');
+        // }
+        map.setView([35.45947, 139.62739], 14);
+        tileLayer.addTo(map);
+    }
+</script>
