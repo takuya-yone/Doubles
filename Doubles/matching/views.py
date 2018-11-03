@@ -2,6 +2,7 @@ from django.shortcuts import render
 import json
 import urllib.request
 import requests
+import os.path
 
 
 def getStation(lat, long):
@@ -13,6 +14,39 @@ def getStation(lat, long):
 
 def login(request):
     return render(request,'login.html')
+
+def login_auth(request):
+
+
+    line_id = request.POST['line_id']
+    password = request.POST['password']
+
+    s = 'password=\"' + password + '\"and line=\"'+ line_id + '\"'
+
+    s_quote = urllib.parse.quote(s)
+
+    url = 'https://itto-ki.cybozu.com/k/v1/records.json?app=8&query='+s_quote
+    # +'&password='+password
+# headers = {
+#     'Content-Type': 'application/json',
+#     'X-Cybozu-API-Token': 'RY6pqwdXsLotz6ZCQ7PR1r2BLuepTOA23BqDUkP4'
+# }
+    headers = {
+        'X-Cybozu-API-Token': 'RY6pqwdXsLotz6ZCQ7PR1r2BLuepTOA23BqDUkP4'}
+
+    res = requests.get(url ,headers=headers)
+
+    data = res.json()
+
+    if len(data["records"])!=1:
+        return render(request,'login.html')
+    else:
+        request.session['userid'] = data["records"][0]["$id"]["value"]
+        request.session['sex'] = data["records"][0]["sex"]["value"]
+        request.session['name'] = data["records"][0]["name"]["value"]
+        dct = {"session_name":request.session['name']}
+        return render(request,'home.html',dct)
+
 
 
 def register(request):

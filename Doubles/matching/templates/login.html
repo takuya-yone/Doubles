@@ -8,26 +8,30 @@
 </head>
 
 <body>
-  <div class="container">
-    search.html
-<!--
-    <div class="center-block">
-    <form action="" method="post">
+  <div class="container-fluid">
+    <div class="container">
+      <div class="card">
+        <h5 class="card-header bg-primary text-white">ログイン情報</h5>
+        <div class="card-body">
+          <div class="center-block">
+            <form action="{% url 'matching:login_auth' %}" method="post">
+              {% csrf_token %}
 
-    <label class="center-block">開始時間</label>
-    <input  name="input_date" id="input_date" type="date" class="form-control" value="">
+              <label class="center-block">LINE ID</label>
+              <input name="line_id" id="line_id" type="text" class="form-control" value="">
 
-    <label class="center-block">開始時間</label>
-    <input  name="input_start_time" id="input_start_time" type="time" class="form-control" value="">
+              <label class="center-block">パスワード</label>
+              <input name="password" id="password" type="password" class="form-control" value="">
 
-    <label class="center-block">終了時間</label>
-    <input  name="input_end_time" id="input_end_time" type="time" class="form-control" value="">
-
-    <button type="submit" class="btn btn-primary btn-lg btn-block">検索</button>
-    <!-- <input type="submit" class="btn btn-primary btn-block" value="Submit Button"> -->
- <!-- </form> -->
- </div>
- <!-- </div> -->
+              <br>
+              <button type="submit" class="btn btn-primary btn-lg btn-block">ログイン</button>
+            </form>
+          </div>
+        </div>
+        <div class="card-footer text-white"><a href="{% url 'matching:register' %}">新規会員登録</a></div>
+      </div>
+    </div>
+  </div>
 
 </body>
 
