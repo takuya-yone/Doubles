@@ -9,21 +9,41 @@
 
 <body>
   <div class="row">
-  <div id='map_canvas' class="col-sm-12" style="height:95%"></div>
+  <div id='map_canvas' class="col-sm-12" style="height:60%"></div>
 
-  </div>
-  <form action="" method="post">
-    <input type="hidden" name="form_lat" id="form_lat" value="">
-    <input type="hidden" name="form_lng" id="form_lng" value="">
+
+  <div class="center-block">
+  <form action="{% url 'matching:search' %}" method="post">
+    {% csrf_token %}
+
+  <label class="center-block">日付</label>
+  <input  name="input_date" id="input_date" type="date" class="form-control" value="2000-01-01">
+
+  <label class="center-block">開始時間</label>
+  <input  name="input_start_time" id="input_start_time" type="time" class="form-control" value="00:00">
+
+  <label class="center-block">終了時間</label>
+  <input  name="input_end_time" id="input_end_time" type="time" class="form-control" value="00:00">
+
+  <label class="center-block">移動可能許容時間</label>
+  <input  name="available_time" id="available_time" type="number" class="form-control" value="0">
+
+
+
+
+
+    <input type="hidden" name="input_lat" id="input_lat" value="">
+    <input type="hidden" name="input_lng" id="input_lng" value="">
     <button type="submit" class="btn btn-primary btn-lg btn-block">マッチング</button>
     <!-- <input type="submit" class="btn btn-primary btn-block" value="Submit Button"> -->
  </form>
+   </div>
 
 </body>
 
 <script type="text/javascript">
-  var form_lat = document.getElementById("form_lat");
-  var forn_lng = document.getElementById("form_lng");
+  var input_lat = document.getElementById("input_lat");
+  var input_lng = document.getElementById("input_lng");
   // Geolocation APIに対応している
   // if (navigator.geolocation) {
   //   alert("この端末では位置情報が取得できます");
@@ -42,8 +62,8 @@
         current_lat = position.coords.latitude;
         current_lng = position.coords.longitude;
         map.setView([current_lat,current_lng], 15);
-        form_lat.value = current_lat;
-        form_lng.value = current_lng;
+        input_lat.value = current_lat;
+        input_lng.value = current_lng;
 
       },
       // 取得失敗した場合
@@ -79,9 +99,7 @@
   var busstop_icon = L.icon({
     iconUrl: "{% static "img/tennis_pin.png" %}",
     iconRetinaUrl: "{% static "img/tennis_pin.png" %}",
-    // iconSize: [90, 90],
-    // iconAnchor: [90, 90],
-    // popupAnchor: [-45, -70],
+
     iconSize: [90, 90],
     iconAnchor: [50, 90],
     popupAnchor: [-5, -75],
@@ -113,12 +131,16 @@
   var popup = L.popup();
 
   function onMapClick(e) {
-    // popup
-    //     .setLatLng(e.latlng)
-    //     .setContent("You clicked the map at " + e.latlng.toString())
-    //     .openOn(map);
+    popup
+        .setLatLng(e.latlng)
+        .setContent("You clicked the map at " + e.latlng.toString())
+        .openOn(map);
     //   }
     click_position = e.latlng
+    input_lat.value = click_position["lat"]
+    input_lng.value = click_position["lng"]
+    console.log(click_position)
+
   }
 
   map.on('click', onMapClick);
