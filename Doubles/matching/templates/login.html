@@ -9,23 +9,7 @@
 
 <body>
   <div class="container">
-    <div class="center-block">
-    <form action="{% url 'matching:search' %}" method="post">
-      {% csrf_token %}
-
-    <label class="center-block">日付</label>
-    <input  name="input_date" id="input_date" type="date" class="form-control" value="2000-01-01">
-
-    <label class="center-block">開始時間</label>
-    <input  name="input_start_time" id="input_start_time" type="time" class="form-control" value="00:00">
-
-    <label class="center-block">終了時間</label>
-    <input  name="input_end_time" id="input_end_time" type="time" class="form-control" value="00:00">
-
-    <label class="center-block">移動可能許容時間</label>
-    <input  name="available_time" id="available_time" type="number" class="form-control" value="0">
-    </div>
-    </div>
+    search.html
 <!--
     <div class="center-block">
     <form action="" method="post">
@@ -42,7 +26,7 @@
     <button type="submit" class="btn btn-primary btn-lg btn-block">検索</button>
     <!-- <input type="submit" class="btn btn-primary btn-block" value="Submit Button"> -->
  <!-- </form> -->
-
+ </div>
  <!-- </div> -->
 
 </body>

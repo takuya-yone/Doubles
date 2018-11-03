@@ -11,6 +11,59 @@ def getStation(lat, long):
    data = result.json()
    return data["ResultSet"]["Point"]["Station"]
 
+def login(request):
+    return render(request,'login.html')
+
+
+def register(request):
+    return render(request,'register.html')
+
+def register_auth(request):
+    name = request.POST['name']
+    category = request.POST['category']
+    sex = request.POST['sex']
+    password = request.POST['password']
+    age = request.POST['age']
+    line_id = request.POST['line_id']
+
+    post_data = {
+            "app": "8",
+            "record": {
+                "name": {
+                    "value": name
+                    },
+                "password": {
+                    "value": password
+                    },
+                "age": {
+                    "value": age
+                    },
+                "line": {
+                    "value": line_id
+                    },
+                "sex": {
+                    "value": sex
+                    },
+                "category": {
+                    "value": category
+                    }
+                }
+            }
+    url = "https://itto-ki.cybozu.com/k/v1/record.json"
+
+    headers = {
+            # 'Host': 'example.cybozu.com:443',
+            'X-Cybozu-API-Token': 'RY6pqwdXsLotz6ZCQ7PR1r2BLuepTOA23BqDUkP4',
+            'Content-Type': 'application/json'
+            }
+    res = requests.post(url, data=json.dumps(post_data), headers=headers)
+    print(res.text)
+
+
+
+
+    return render(request,'login.html')
+
 def map(request):
 
 
@@ -48,50 +101,49 @@ def search(request):
         'station_name':station_info['code'],
         'station_code':station_info["Name"],
         'available_time':request.POST['available_time']
-    }
+        }
 
     post_data = {
-        "app": 9,
-        "record": {
-            "userID": {
-                "value": "テスト"
-                },
+            "app": "9",
+            "record": {
+                "name": {
+                    "value": 2
+                    },
                 "date": {
-                "value": data['input_date']
-                },
+                    "value": str(data['input_date'])
+                    },
                 "start_time": {
-                "value": data['input_start_time']
-                },
+                    "value": str(data['input_start_time'])
+                    },
                 "end_time": {
-                "value": data['input_end_time']
-                },
+                    "value": str(data['input_end_time'])
+                    },
                 "station_name": {
-                "value": data["station_name"]
-                },
+                    "value": str(data["station_name"])
+                    },
                 "station_code": {
-                "value": data["station_code"]
-                },
+                    "value": str(data["station_code"])
+                    },
                 "range": {
-                "value": data["available_time"]
-                },
+                    "value": str(data["available_time"])
+                    },
                 "flag": {
-                "value": ["on"]
-                }
+                    "value": "off"
+                    },
+                "sex": {
+                    "value": "男"
+                    }
                 }
             }
 
-    url = "https://itto-ki.cybozu.com/k/1/record.json"
-
-
-    # post_data = {'app':"9",'record':record}
+    url = "https://itto-ki.cybozu.com/k/v1/record.json"
 
     headers = {
-            'Host: example.cybozu.com:443'
-            'X-Cybozu-API-Token':'wHESFXvG6wQP4QEEaPn2rWkDpTIWv57jjJNLPpZ1',
-            'Authorization': 'Basic wHESFXvG6wQP4QEEaPn2rWkDpTIWv57jjJNLPpZ1',
+            # 'Host': 'example.cybozu.com:443',
+            'X-Cybozu-API-Token': '2HAqiXnC777v4trbOmvG2ojn9LlNJngTw6TS9wTL',
             'Content-Type': 'application/json'
             }
-    res = requests.post(url ,json=post_data,headers=headers)
+    res = requests.post(url, data=json.dumps(post_data), headers=headers)
     print(res.text)
     # print(data)
     return render(request,'search.html')

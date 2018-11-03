@@ -1,0 +1,56 @@
+{% load static %}
+
+<head>
+  <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/leaflet.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/leaflet.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}" />
+</head>
+
+<body>
+
+  <div class="container-fluid">
+    <div class="container">
+      <div class="card">
+        <h5 class="card-header bg-primary text-white">会員登録</h5>
+        <div class="card-body">
+          <div class="center-block">
+            <form action="{% url 'matching:register_auth' %}" method="post">
+              {% csrf_token %}
+
+              <label class="center-block">名前</label>
+              <input name="name" id="name" type="text" class="form-control" value="">
+
+              <label class="center-block">カテゴリー</label>
+              <select class="form-control" id="category" name="category">
+                <option value="テニス" selected="selected">テニス</option>
+                <option value="バドミントン" >バドミントン</option>
+                <option value="卓球">卓球</option>
+              </select>
+
+              <label class="center-block">性別</label>
+              <select class="form-control" id="sex" name="sex">
+                <option value="男性" selected="selected">男性</option>
+                <option value="女性">女性</option>
+              </select>
+
+              <label class="center-block">パスワード</label>
+              <input name="password" id="password" type="password" class="form-control" value="">
+
+              <label class="center-block">年齢</label>
+              <input name="age" id="age" type="number" class="form-control" value="20">
+
+              <label class="center-block">LINE ID</label>
+              <input name="line_id" id="line_id" type="text" class="form-control" value="">
+              <br>
+              <button type="submit" class="btn btn-primary btn-lg btn-block">登録</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</script>
