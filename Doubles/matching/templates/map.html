@@ -1,1 +1,215 @@
-helloworld
+{% load static %}
+
+<head>
+  <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/leaflet.js' %}"></script>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/leaflet.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}" />
+</head>
+
+<body>
+  <div class="row">
+  <div id='map_canvas' class="col-sm-12" style="height:95%"></div>
+
+  </div>
+  <form action="" method="post">
+    <input type="hidden" name="form_lat" id="form_lat" value="">
+    <input type="hidden" name="form_lng" id="form_lng" value="">
+    <button type="submit" class="btn btn-primary btn-lg btn-block">マッチング</button>
+    <!-- <input type="submit" class="btn btn-primary btn-block" value="Submit Button"> -->
+ </form>
+
+</body>
+
+<script type="text/javascript">
+  var form_lat = document.getElementById("form_lat");
+  var forn_lng = document.getElementById("form_lng");
+  // Geolocation APIに対応している
+  // if (navigator.geolocation) {
+  //   alert("この端末では位置情報が取得できます");
+  // // Geolocation APIに対応していない
+  // } else {
+  //   alert("この端末では位置情報が取得できません");
+  // }
+
+  // 現在地取得処理
+  function getPosition() {
+    // 現在地を取得
+    navigator.geolocation.getCurrentPosition(
+      // 取得成功した場合
+      function(position) {
+        // alert("緯度:"+position.coords.latitude+",経度"+position.coords.longitude);
+        current_lat = position.coords.latitude;
+        current_lng = position.coords.longitude;
+        map.setView([current_lat,current_lng], 15);
+        form_lat.value = current_lat;
+        form_lng.value = current_lng;
+
+      },
+      // 取得失敗した場合
+      function(error) {
+        switch (error.code) {
+          case 1: //PERMISSION_DENIED
+            alert("位置情報の利用が許可されていません");
+            break;
+          case 2: //POSITION_UNAVAILABLE
+            alert("現在位置が取得できませんでした");
+            break;
+          case 3: //TIMEOUT
+            alert("タイムアウトになりました");
+            break;
+          default:
+            alert("その他のエラー(エラーコード:" + error.code + ")");
+            break;
+        }
+      }
+    );
+  }
+  data = {{data | safe}};
+  data = data["records"]
+  var click_position;
+
+  // var bus_icon = L.icon({
+  //     iconUrl: "{% static "img/bus_img/minato_bus_sample004.png" %}",
+  //     iconRetinaUrl: "{% static "img/bus_img/minato_bus_sample004.png" %}",
+  //     iconSize: [30, 30],
+  //     iconAnchor: [15, 15],
+  //     popupAnchor: [0, -14],
+  // });
+  var busstop_icon = L.icon({
+    iconUrl: "{% static "img/tennis_pin.png" %}",
+    iconRetinaUrl: "{% static "img/tennis_pin.png" %}",
+    // iconSize: [90, 90],
+    // iconAnchor: [90, 90],
+    // popupAnchor: [-45, -70],
+    iconSize: [90, 90],
+    iconAnchor: [50, 90],
+    popupAnchor: [-5, -75],
+  });
+  // var update_time = 5000;
+  // var center_lat = {{map_center_lat}}; //初期地図の中心点を定義
+  // var center_lng = {{map_center_lng}}; //初期地図の中心点を定義
+  // var marker = new Array();
+  // var bus_list = new Array();
+  // var distance_list = new Array();
+  // var busStops = {{stops | safe}}
+  // var route_id = {{route_id | safe}}
+  // var selecting_ID;
+  // var selecting_lat;
+  // var selecting_lng;
+  // var bus_marker_layer = new L.FeatureGroup();
+  // //var busStops = {{stops | safe}}
+  var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+  });
+  // var baseLayers = {
+  //     "OpenStreetMap": tileLayer
+  // };
+  var map = L.map('map_canvas', {
+    zoomControl: true,
+    // layers: [bus_marker_layer]
+  });
+
+  var popup = L.popup();
+
+  function onMapClick(e) {
+    // popup
+    //     .setLatLng(e.latlng)
+    //     .setContent("You clicked the map at " + e.latlng.toString())
+    //     .openOn(map);
+    //   }
+    click_position = e.latlng
+  }
+
+  map.on('click', onMapClick);
+  // //車両の角度計算
+  // function geoDirection(lat1, lng1, lat2, lng2) {
+  //     var Y = Math.cos(lng2 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180 - lat1 * Math.PI / 180);
+  //     var X = Math.cos(lng1 * Math.PI / 180) * Math.sin(lng2 * Math.PI / 180) - Math.sin(lng1 * Math.PI / 180) * Math.cos(lng2 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180 - lat1 * Math.PI / 180);
+  //     var dirE0 = 180 * Math.atan2(Y, X) / Math.PI;
+  //     if (dirE0 < 0) {
+  //         dirE0 = dirE0 + 360;
+  //     }
+  //     var dirN0 = (dirE0 + 90) % 360;
+  //     return dirN0;
+  // }
+  makemap();
+  // L.control.scale().addTo(map);
+  // //var stops = {{stops | safe}}
+  // //console.log(stops)
+  // $.getJSON("now_user",
+  //     function(bus_data) {
+  //         realtime_data = bus_data;
+  //         console.log("data initialized!!!")
+  //         set_bus_markers();
+  //     });
+  // function update() {
+  //     $.getJSON("now_user",
+  //         function(bus_data) {
+  //             realtime_data = bus_data;
+  //             console.log("data updated!!!")
+  //         }
+  //     );
+  //     setTimeout(function() {
+  //         update()
+  //         update_bus_markers_position();
+  //         //update_info()
+  //         //make_distance_list();
+  //     }, update_time);
+  // }
+  // update();
+  // function update_bus_markers_position() {
+  //     Object.keys(realtime_data).forEach(function(key) {
+  //       if(realtime_data[key].bus_root==route_id){
+  //         if(realtime_data[key].kmh>10){
+  //           eval("busMarker" + realtime_data[key].bus + ".setRotationAngle(Math.ceil(geoDirection(Number(busMarker" + realtime_data[key].bus + "._latlng.lat),Number(busMarker" + realtime_data[key].bus +"._latlng.lng),Number(realtime_data[key].lat),Number(realtime_data[key].lng))));")
+  //         }
+  //         //緯度経度が0ならマーカー位置を更新しない
+  //         if(realtime_data[key].lat != 0 && realtime_data[key].lng != 0){
+  //           eval("busMarker" + realtime_data[key].bus + ".setLatLng([Number(realtime_data[key].lat),Number(realtime_data[key].lng)]).update();")
+  //         }
+  //       }
+  //     });
+  // }
+  // function set_bus_markers() {
+  //     Object.keys(realtime_data).forEach(function(key) {
+  //       console.log(realtime_data[key].bus_root)
+  //       if(realtime_data[key].bus_root==route_id){
+  //         eval("busMarker" + realtime_data[key].bus + " = new L.marker([Number(realtime_data[key].lat), Number(realtime_data[key].lng)], {icon: bus_icon}).on('click', markerClick);")
+  //         eval("busMarker" + realtime_data[key].bus + ".ID = realtime_data[key].bus")
+  //         eval("bus_marker_layer.addLayer(busMarker" + realtime_data[key].bus + ")")
+  //         eval("busMarker" + realtime_data[key].bus + ".bindPopup('<h4>'+realtime_data[key].bus+'</h4>')")
+  //         //初期バスマーカーの角度を右向きに
+  //         eval("busMarker" + realtime_data[key].bus + ".setRotationAngle(90)")
+  //       }
+  //     });
+  // }
+  // function markerClick(e) {
+  //     var clicked_marker_latlng = this.getLatLng();
+  //     map.setView([clicked_marker_latlng.lat, clicked_marker_latlng.lng]);
+  //     selecting_ID = "bus_" + this.ID;
+  //     //console.log('selecting_ID:' + selecting_ID)
+  //     //alert("ID：" + this.ID + "を選択しました");
+  // }
+  // function get_nearest_busstop() {
+  //     distance_list.length = 0;
+  //     for (var i = 0; i < busStops.length; i++) {
+  //         var dis = Math.abs(realtime_data[selecting_ID].lat - busStops[i].lat) + Math.abs(realtime_data[selecting_ID].lng - busStops[i].lng)
+  //         distance_list.push(dis)
+  //     }
+  //     return busStops[distance_list.indexOf(Math.min.apply(null, distance_list))].name
+  // }
+  function makemap() {
+    for (var i = 0; i < data.length; i++) {
+      var busstopMarker = L.marker([data[i]["latitude"].value, data[i]["longitude"].value], {
+        icon: busstop_icon
+      });
+      console.log("aa")
+      busstopMarker.addTo(map);
+      busstopMarker.bindPopup('<a href="http://www.kobe-minato.co.jp/ashi-syuku.html">' + data[i]["name"].value + '</a>');
+    }
+    map.setView([35.7945, 139.6579], 15);
+    // getPosition()
+    tileLayer.addTo(map);
+  }
+</script>
