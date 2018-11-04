@@ -3,6 +3,11 @@ import json
 import urllib.request
 import requests
 import os.path
+import numpy as np
+import urllib.parse
+
+
+
 
 
 def getStation(lat, long):
@@ -134,6 +139,10 @@ def map(request):
     #     body = res.read()
     #     print(body)
     return render(request, 'map.html',dct)
+
+def execute_matching(request):
+    pass
+
 
 def regist_query(request):
     station_info =getStation(request.POST['input_lat'],request.POST['input_lng'])
