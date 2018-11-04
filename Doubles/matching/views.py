@@ -314,7 +314,8 @@ def register_auth(request):
     request.session['name'] = name
     dct = {"session_name":request.session['name'],"session_sex":request.session['sex']}
 
-    return "success"
+    return render(request,'friend_regist.html',dct)
+
 
 def map(request):
 
