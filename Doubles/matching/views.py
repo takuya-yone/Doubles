@@ -428,10 +428,8 @@ def matched_but_still_meet(request):
     now_time = datetime.datetime.today().strftime("%H:%M:%S%z") + '+0900'
 
     queries = 'query=name = "' + user_name + '" and date > "' + now_date + '" and start_time > "' + now_time + '"'
-    print(queries)
     fields = "fields=date&fields=start_time&fields=station_name"
     url = url + "&" + urllib.parse.quote(queries) + "&" + fields
-    print(url)
 
     response = requests.get(url, headers=headers)
     people_matched_but_still_meet = response.json()
@@ -463,10 +461,8 @@ def meat_but_still_eval(request):
     now_time = datetime.datetime.today().strftime("%H:%M:%S%z") + '+0900'
 
     queries = 'query=name = "' + user_name + '" and date > "' + now_date + '" and start_time > "' + now_time + '"'
-    print(queries)
     fields = "fields=date&fields=start_time&fields=station_name&fields=partner"
     url = url + "&" + urllib.parse.quote(queries) + "&" + fields
-    print(url)
 
     response = requests.get(url, headers=headers)
     people_matched_but_still_meet = response.json()
@@ -479,9 +475,7 @@ def meat_but_still_eval(request):
                 '%Y-%m-%d %H:%M'
                 )
         if record_datetime > datetime.datetime.today():
-            print(record)
             before_records.append(record)
-    print(before_records)
 
     before_records.sort(key=lambda record: record['start_time']['value'])
 
