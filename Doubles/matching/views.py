@@ -6,6 +6,135 @@ import os.path
 import numpy as np
 import urllib.parse
 
+lat = 35.462286
+long = 139.632353
+
+
+
+
+#緯度経度をもとに最寄駅のコードを取得する
+def getCode(lat, long):
+    key = "eBBWPyXMYduCN759"
+    url = "http://api.ekispert.jp/v1/json/geo/station?key="+key+"&geoPoint="+str(lat)+","+str(long)+",tokyo,10000&type=train&stationCount=1"
+    result = requests.get(url)
+    data = result.json()
+    return str(data["ResultSet"]["Point"]["Station"]["code"])
+
+new_code = getCode(lat,long)
+
+#現在のリクエストマスタを取得する
+def get_requestData():
+    url = 'https://itto-ki.cybozu.com/k/v1/records.json?app=9'
+    headers = {'X-Cybozu-API-Token': 'tjNhIJmlfeLfKrdN86eN3hv0dGRPxkSsdzrg3Wks'}
+    res = requests.get(url ,headers=headers)
+    return  res.json()["records"]
+
+
+#対象ユーザの最寄駅コードと許容時間を渡して，共通の駅を取得する
+def get_commonStation(bl, um):
+    url = "http://api.ekispert.jp/v1/json/search/multipleRange?key=eBBWPyXMYduCN759&baseList="+bl+"&upperMinute="+um+"&limit=1"
+    r = requests.get(url)
+    return r.json()
+
+
+
+##評価待ちマスタへの書き込み
+def write_validation(waiting_data, i, x):
+        url = 'https://itto-ki.cybozu.com/k/v1/record.json'
+        headers = {'X-Cybozu-API-Token': '132Udy1Gp8xkMmk2u3U2P2mJxUhtTd2W0moGtNOo','Content-Type' : "application/json"}
+        record = {
+                    "app": "13",
+                    "records": {
+                        "userID": {
+                            "value": waiting_data[i]["userID"]["value"]
+                            },
+                        "date": {
+                            "value": waiting_data[i]["date"]["value"]
+                            },
+                        "start_time": {
+                            "value": waiting_data[i]["start_time"]["value"]
+                            },
+                        "end_time": {
+                            "value": waiting_data[i]["end_time"]["value"]
+                            },
+                        "station_name": {
+                            "value": waiting_data[i]["station_name"]["value"]
+                            },
+                        "station_code": {
+                            "value": waiting_data[i]["station_code"]["value"]
+                            },
+                        "range": {
+                            "value": waiting_data[i]["range"]["value"]
+                            },
+                        "sex": {
+                            "value": waiting_data[i]["sex"]["value"]
+                            },
+                        "partner":{
+                            "value":waiting_data[x]["userID"]["value"]
+                           },
+                        "line":{
+                            "value":waiting_data[i]["userID"]["value"]
+                           }
+                        }
+                    }
+        print(record)
+
+        resp = requests.post(url, json=record, headers=headers)
+
+        dct={"data": resp}
+        return render(request,'success.html',dct)
+
+
+#post_data:今回新たに申請してきたユーザー
+#waiting_data:リクエストマスタに登録されている，　マッチングを待っているユーザー群
+def compare():
+    waiting_data = get_requestData()
+    for i in range(1, len(waiting_data)):
+        if(waiting_data[0]["sex"]["value"] == waiting_data[i]["sex"]["value"]):
+            bl = new_code + ":" + waiting_data[i]["station_code"]["value"]
+            um = "180" +":"+ waiting_data[i]["range"]["value"]
+            station = get_commonStation(bl, um)
+            # print(station)
+            if "Point" in station["ResultSet"]:
+                    for j in range(len(waiting_data)):
+                        if (waiting_data[0]["sex"]["value"] != waiting_data[j]["sex"]["value"] ):
+                                bl2 = bl+":"+waiting_data[j]["station_code"]["value"]
+                                um2 = um+":"+ waiting_data[j]["range"]["value"]
+                                station=get_commonStation(bl2, um2)
+                                if "Point" in station["ResultSet"]:
+                                
+
+                                    for k in range(len(waiting_data)):
+                                        if (waiting_data[0]["sex"]["value"] != waiting_data[k]["sex"]["value"] and k > j):
+                                            bl3 = bl2+":"+waiting_data[k]["station_code"]["value"]
+                                            um3 = um2 +":"+ waiting_data[k]["range"]["value"]
+                                            station=get_commonStation(bl3, um3)
+                                            if "Point" in station["ResultSet"]:
+
+                                                ##jとkの性別が同じ
+                                                if(np.random.rand() > 0.5):
+                                                    write_validation(waiting_data, i, j)
+                                                    write_validation(waiting_data, j, i)
+                                                    write_validation(waiting_data, k, 0)
+                                                    write_validation(waiting_data, 0, k)
+                                                else :
+                                                    write_validation(waiting_data, 0, j)
+                                                    write_validation(waiting_data, j, 0)
+                                                    write_validation(waiting_data, k, i)
+                                                    write_validation(waiting_data, i, k)
+                                                break
+                                else:
+                                    continue
+                                break
+            else:
+                    # print("i:"+str(i)+":"+waiting_data[i]["sex"]["value"])
+                    # print("miss match")
+
+                    return "FAIL"
+    # In[216]:
+
+
+
 
 
 
@@ -114,7 +243,7 @@ def register_auth(request):
     request.session['name'] = name
     dct = {"session_name":request.session['name'],"session_sex":request.session['sex']}
 
-    return render(request,'friend_regist.html',dct)
+    return "success"
 
 def map(request):
 
@@ -141,7 +270,9 @@ def map(request):
     return render(request, 'map.html',dct)
 
 def execute_matching(request):
-    pass
+    print(compare())
+    return render(request,"success.html")
+    # write_validation(waiting_data, i, x)
 
 
 def regist_query(request):
