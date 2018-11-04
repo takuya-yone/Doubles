@@ -48,6 +48,7 @@ def get_commonStation(bl, um):
 
 ##評価待ちマスタへの書き込み
 def write_validation(waiting_data, i, x):
+        sendLine(userid,text)
         userID=waiting_data[i]["userID"]["value"]
 
         s = 'id=\"' + userID +  '\"'
@@ -88,7 +89,7 @@ def write_validation(waiting_data, i, x):
             data_line = res_line.json()
             if len(data_line["records"])==1:
                 line_system_id = data_line["records"][0]["line_id_system"]["value"]
-                sendLine(line_system_id, text)
+                sendLine(userid, text)
                 print(line_system_id)
                 print("テキスト送信")
             # if len(data_line["records"])==1:
@@ -152,8 +153,11 @@ def write_validation(waiting_data, i, x):
 #waiting_data:リクエストマスタに登録されている，　マッチングを待っているユーザー群
 def compare():
     waiting_data = get_requestData()
+    flag=0
+
     for i in range(1, len(waiting_data)):
-        if(waiting_data[0]["sex"]["value"] == waiting_data[i]["sex"]["value"]):
+        if(flag==1):break
+        elif(waiting_data[0]["sex"]["value"] == waiting_data[i]["sex"]["value"]):
             bl = new_code + ":" + waiting_data[i]["station_code"]["value"]
             um = "180" +":"+ waiting_data[i]["range"]["value"]
             station = get_commonStation(bl, um)
@@ -187,6 +191,7 @@ def compare():
                                                     write_validation(waiting_data, k, i)
                                                     write_validation(waiting_data, i, k)
                                                     # print(station[“ResultSet”][“Point”][“Station”][“Name”])
+                                                flag = 1
                                                 break
                                 else:
                                     continue
@@ -479,4 +484,3 @@ def meat_but_still_eval(request):
     before_records.sort(key=lambda record: record['start_time']['value'])
 
     return render(request,'before_match.html', {'records': before_records})
-
