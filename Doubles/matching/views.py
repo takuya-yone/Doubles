@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import json
 import urllib.request
-import urllib.parse
+import urllib
 import requests
 import os.path
 import numpy as np
@@ -342,8 +342,9 @@ def regist_query(request):
     # print(data)
     return render(request,'home.html',dct)
 
+
 def matched_but_still_meet(request):
-    user_name = request.Post['name']
+    user_name = request.session['name']
     url = "https://itto-ki.cybozu.com/k/v1/records.json?app=13"
     api_token = "132Udy1Gp8xkMmk2u3U2P2mJxUhtTd2W0moGtNOo"
 
@@ -351,16 +352,66 @@ def matched_but_still_meet(request):
             'X-Cybozu-API-Token': api_token,
             }
 
-    now_date = datetime.datetime.today().strftime("%Y-%m-%dT")
-    now_time = datetime.datetime.today().strftime("%H:%M:%S%Z")
+    now_date = datetime.datetime.today().strftime("%Y-%m-%d")
+    now_time = datetime.datetime.today().strftime("%H:%M:%S%z") + '+0900'
 
-    query = "query=name=" + user_name + "&query=date>" + now_date + "&query=start_time>" + now_time
-    fields = ""
-    url = url + "&" + queres + "&" + fields
-    url_encoded = parse.quote(url)
+    queries = 'query=name = "' + user_name + '" and date > "' + now_date + '" and start_time > "' + now_time + '"'
+    print(queries)
+    fields = "fields=date&fields=start_time&fields=station_name"
+    url = url + "&" + urllib.parse.quote(queries) + "&" + fields
+    print(url)
 
-    response = requests.get(url_encoded, headers=headers)
+    response = requests.get(url, headers=headers)
     people_matched_but_still_meet = response.json()
 
-    return render(request,'before_match.html', {'data': people_matched_but_still_meet})
+    records = people_matched_but_still_meet['records']
+    before_records = []
+    for record in records:
+        record_datetime = datetime.datetime.strptime(
+                record['date']['value'] + ' ' + record['start_time']['value'],
+                '%Y-%m-%d %H:%M'
+                )
+        if record_datetime < datetime.datetime.today():
+            before_records.append(record)
+
+    before_records.sort(key=lambda record: record['start_time']['value'])
+
+    return render(request,'before_match.html', {'records': before_records})
+
+def meat_but_still_eval(request):
+    user_name = request.session['name']
+    url = "https://itto-ki.cybozu.com/k/v1/records.json?app=13"
+    api_token = "132Udy1Gp8xkMmk2u3U2P2mJxUhtTd2W0moGtNOo"
+
+    headers = {
+            'X-Cybozu-API-Token': api_token,
+            }
+
+    now_date = datetime.datetime.today().strftime("%Y-%m-%d")
+    now_time = datetime.datetime.today().strftime("%H:%M:%S%z") + '+0900'
+
+    queries = 'query=name = "' + user_name + '" and date > "' + now_date + '" and start_time > "' + now_time + '"'
+    print(queries)
+    fields = "fields=date&fields=start_time&fields=station_name"
+    url = url + "&" + urllib.parse.quote(queries) + "&" + fields
+    print(url)
+
+    response = requests.get(url, headers=headers)
+    people_matched_but_still_meet = response.json()
+
+    records = people_matched_but_still_meet['records']
+    before_records = []
+    for record in records:
+        record_datetime = datetime.datetime.strptime(
+                record['date']['value'] + ' ' + record['start_time']['value'],
+                '%Y-%m-%d %H:%M'
+                )
+        if record_datetime > datetime.datetime.today():
+            print(record)
+            before_records.append(record)
+    print(before_records)
+
+    before_records.sort(key=lambda record: record['start_time']['value'])
+
+    return render(request,'before_match.html', {'records': before_records})
 

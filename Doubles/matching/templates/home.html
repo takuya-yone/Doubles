@@ -20,8 +20,10 @@
         <div class="card-body">
           <div class="center-block">
             <a href="{% url 'matching:map' %}" class="btn btn-primary btn-lg btn-block" role="button" >待ち情報を登録</a>
+            <a href="{% url 'matching:matched_but_still_meet' %}" class="btn btn-primary btn-lg btn-block" role="button" >まだ会っていない人</a>
+            <a href="{% url 'matching:meat_but_still_eval' %}" class="btn btn-primary btn-lg btn-block" role="button" >既に会った人</a>
 
-            <a href="{% url 'matching:map' %}" class="btn btn-primary btn-lg btn-block" role="button" >待ち方法を検索</a>
+            </form>
 
           </div>
         </div>

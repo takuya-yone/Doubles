@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^regist_query$', views.regist_query, name='regist_query'),
     url(r'^register_auth$', views.register_auth, name='register_auth'),
     url(r'^matched_but_still_meet$', views.matched_but_still_meet, name='matched_but_still_meet'),
+    url(r'^meat_but_still_eval$', views.meat_but_still_eval, name='meat_but_still_eval'),
     ]
