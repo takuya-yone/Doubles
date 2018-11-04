@@ -15,6 +15,10 @@ def getStation(lat, long):
 def login(request):
     return render(request,'login.html')
 
+def home(request):
+    dct = {"session_name":request.session['name']}
+    return render(request,'home.html',dct)
+
 def login_auth(request):
 
 
@@ -94,9 +98,10 @@ def register_auth(request):
     print(res.text)
 
 
+    request.session['name'] = name
+    dct = {"session_name":request.session['name']}
 
-
-    return render(request,'login.html')
+    return render(request,'friend_regist.html',dct)
 
 def map(request):
 

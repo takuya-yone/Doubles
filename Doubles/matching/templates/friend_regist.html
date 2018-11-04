@@ -18,14 +18,15 @@
       <div class="card">
         <h5 class="card-header bg-primary text-white">{{session_name}} さん ようこそ</h5>
         <div class="card-body">
-          <div class="center-block">
-            <a href="{% url 'matching:map' %}" class="btn btn-primary btn-lg btn-block" role="button" >待ち情報を登録</a>
-
-            <a href="{% url 'matching:map' %}" class="btn btn-primary btn-lg btn-block" role="button" >待ち方法を検索</a>
-
+          <div class="center-block" align="center">
+            <img src="{% static 'img/qr.png' %}">
+            <hr>
+            <a href="https://line.me/R/ti/p/0eYQZxgqOE">DoublesをLINEに登録</a>
           </div>
         </div>
-        <div class="card-footer text-white"><a href="{% url 'matching:register' %}"></a></div>
+        <div class="card-footer text-white">
+          <a href="{% url 'matching:home' %}" class="btn btn-primary btn-lg btn-block" role="button" >ホーム画面へ</a>
+        </div>
       </div>
     </div>
   </div>
