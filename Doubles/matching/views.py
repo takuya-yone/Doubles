@@ -1,10 +1,12 @@
 from django.shortcuts import render
 import json
 import urllib.request
+import urllib.parse
 import requests
 import os.path
 import numpy as np
 import urllib.parse
+import datetime
 
 lat = 35.462286
 long = 139.632353
@@ -340,5 +342,25 @@ def regist_query(request):
     # print(data)
     return render(request,'home.html',dct)
 
-def before_match(request):
-    return render(request,'before_match.html')
+def matched_but_still_meet(request):
+    user_name = request.Post['name']
+    url = "https://itto-ki.cybozu.com/k/v1/records.json?app=13"
+    api_token = "132Udy1Gp8xkMmk2u3U2P2mJxUhtTd2W0moGtNOo"
+
+    headers = {
+            'X-Cybozu-API-Token': api_token,
+            }
+
+    now_date = datetime.datetime.today().strftime("%Y-%m-%dT")
+    now_time = datetime.datetime.today().strftime("%H:%M:%S%Z")
+
+    query = "query=name=" + user_name + "&query=date>" + now_date + "&query=start_time>" + now_time
+    fields = ""
+    url = url + "&" + queres + "&" + fields
+    url_encoded = parse.quote(url)
+
+    response = requests.get(url_encoded, headers=headers)
+    people_matched_but_still_meet = response.json()
+
+    return render(request,'before_match.html', {'data': people_matched_but_still_meet})
+
