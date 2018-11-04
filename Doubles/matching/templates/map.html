@@ -18,7 +18,7 @@
 
 
   <div class="col-sm-12" align="center">
-  <form action="{% url 'matching:search' %}" method="post">
+  <form action="{% url 'matching:regist_query' %}" method="post">
     {% csrf_token %}
 
     <label>日付</label>
@@ -44,7 +44,7 @@
     <input type="hidden" name="input_lat" id="input_lat" value="0">
     <input type="hidden" name="input_lng" id="input_lng" value="0">
     <br>
-    <button type="submit" class="btn btn-primary btn-lg btn-block">マッチング</button>
+    <button type="submit" class="btn btn-primary btn-lg btn-block">パートナーを待つ！</button>
     <!-- <input type="submit" class="btn btn-primary btn-block" value="Submit Button"> -->
  </form>
    </div>

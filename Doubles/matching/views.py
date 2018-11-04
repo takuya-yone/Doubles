@@ -19,6 +19,10 @@ def home(request):
     dct = {"session_name":request.session['name']}
     return render(request,'home.html',dct)
 
+def search(request):
+    dct = {"session_name":request.session['name']}
+    return render(request,'home.html',dct)
+
 def login_auth(request):
 
 
@@ -41,6 +45,7 @@ def login_auth(request):
     res = requests.get(url ,headers=headers)
 
     data = res.json()
+    print(len(data))
 
     if len(data["records"])!=1:
         return render(request,'login.html')
@@ -48,7 +53,10 @@ def login_auth(request):
         request.session['userid'] = data["records"][0]["$id"]["value"]
         request.session['sex'] = data["records"][0]["sex"]["value"]
         request.session['name'] = data["records"][0]["name"]["value"]
-        dct = {"session_name":request.session['name']}
+        dct = {"session_name":request.session['name'],
+               "session_sex":request.session['sex'],
+               "session_userid" : request.session["userid"]
+                }
         return render(request,'home.html',dct)
 
 
@@ -97,9 +105,9 @@ def register_auth(request):
     res = requests.post(url, data=json.dumps(post_data), headers=headers)
     print(res.text)
 
-
+    request.session['sex'] = sex
     request.session['name'] = name
-    dct = {"session_name":request.session['name']}
+    dct = {"session_name":request.session['name'],"session_sex":request.session['sex']}
 
     return render(request,'friend_regist.html',dct)
 
@@ -127,7 +135,7 @@ def map(request):
     #     print(body)
     return render(request, 'map.html',dct)
 
-def search(request):
+def regist_query(request):
     station_info =getStation(request.POST['input_lat'],request.POST['input_lng'])
     # print(station_info)
     # print(station_info[2])
@@ -137,16 +145,21 @@ def search(request):
         'input_end_time': request.POST['input_end_time'],
         'input_lat': request.POST['input_lat'],
         'input_lng': request.POST['input_lng'],
-        'station_name':station_info['code'],
-        'station_code':station_info["Name"],
-        'available_time':request.POST['available_time']
+        'station_name':station_info['Name'],
+        'station_code':station_info["code"],
+        'available_time':request.POST['available_time'],
+        'sex':request.session['sex']
         }
+
+    print(data)
 
     post_data = {
             "app": "9",
-            "record": {
-                "name": {
-                    "value": 2
+            "records": {
+                "userID": {
+                    # "value": request.session['userid']
+                    "value": 3
+
                     },
                 "date": {
                     "value": str(data['input_date'])
@@ -166,11 +179,10 @@ def search(request):
                 "range": {
                     "value": str(data["available_time"])
                     },
-                "flag": {
-                    "value": "off"
-                    },
                 "sex": {
-                    "value": "男"
+                    # "type":"DROP_DOWN",
+                    # "value":request.session['sex']
+                    "value":"男"
                     }
                 }
             }
@@ -184,5 +196,6 @@ def search(request):
             }
     res = requests.post(url, data=json.dumps(post_data), headers=headers)
     print(res.text)
+    dct = {"session_name":request.session['name']}
     # print(data)
-    return render(request,'search.html')
+    return render(request,'home.html',dct)
