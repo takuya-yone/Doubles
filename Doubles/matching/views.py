@@ -11,8 +11,14 @@ import datetime
 lat = 35.462286
 long = 139.632353
 
+userid = "line:U89bd9c76f03831c659c6848bf1d12fb0"
+text = "マッチングしました！ おめでとうございます！"
 
 
+def sendLine(userid, text):
+
+ p = 'curl -X POST https://studio.twilio.com/v1/Flows/FW0983b8518646aa854799eccf18807c39/Executions -d To='+userid+' -d From=line:1619535250  -d Parameters={\\"text\\":\\"'+text+'\\"}  -u ACd90d602dd72e199e7d5e4de72cdfd14a:fe5ca9c7a8c3ab7a307c692087693af0'
+ req = os.system(p)
 
 #緯度経度をもとに最寄駅のコードを取得する
 def getCode(lat, long):
@@ -42,11 +48,67 @@ def get_commonStation(bl, um):
 
 ##評価待ちマスタへの書き込み
 def write_validation(waiting_data, i, x):
+        sendLine(userid,text)
+        userID=waiting_data[i]["userID"]["value"]
+
+        s = 'id=\"' + userID +  '\"'
+
+        s_quote = urllib.parse.quote(s)
+
+        url = 'https://itto-ki.cybozu.com/k/v1/records.json?app=8&query='+s_quote
+
+        # +'&password='+password
+    # headers = {
+    #     'Content-Type': 'application/json',
+    #     'X-Cybozu-API-Token': 'RY6pqwdXsLotz6ZCQ7PR1r2BLuepTOA23BqDUkP4'
+    # }
+        headers = {
+            'X-Cybozu-API-Token': 'RY6pqwdXsLotz6ZCQ7PR1r2BLuepTOA23BqDUkP4',
+            # 'Content-Type': 'application/json'
+            }
+
+        res = requests.get(url ,headers=headers)
+        data = res.json()
+        # print(data["records"][0])
+        # data = dict(res)
+        # print(data)
+        # data = json.dumps(str(data["records"])[1:][:-1])
+        # data = json.dumps(data)
+        if len(data["records"])==1:
+            line_id = data["records"][0]["line"]["value"]
+            print(line_id)
+            s = 'line=\"' + line_id +  '\"'
+            s_quote = urllib.parse.quote(s)
+            url = 'https://itto-ki.cybozu.com/k/v1/records.json?app=12&query='+s_quote
+            print(url)
+            headers_line = {
+                'X-Cybozu-API-Token': 'cFtON5Cef7yJSqMCTRDfIDGA6jvPqqieCbV5t6x9',
+                # 'Content-Type': 'application/json'
+                }
+            res_line = requests.get(url ,headers=headers_line)
+            data_line = res_line.json()
+            if len(data_line["records"])==1:
+                line_system_id = data_line["records"][0]["line_id_system"]["value"]
+                sendLine(userid, text)
+                print(line_system_id)
+                print("テキスト送信")
+            # if len(data_line["records"])==1:
+            #     print("hello")
+
+
+
+        # print(data["line"]["value"])
+        # print(data[1])
+        # print(data["records"][0]["$id"]["value"])
+        # print(data[0])
+
+
+
         url = 'https://itto-ki.cybozu.com/k/v1/record.json'
         headers = {'X-Cybozu-API-Token': '132Udy1Gp8xkMmk2u3U2P2mJxUhtTd2W0moGtNOo','Content-Type' : "application/json"}
         record = {
                     "app": "13",
-                    "records": {
+                    "record": {
                         "userID": {
                             "value": waiting_data[i]["userID"]["value"]
                             },
@@ -79,20 +141,23 @@ def write_validation(waiting_data, i, x):
                            }
                         }
                     }
-        print(record)
+
 
         resp = requests.post(url, json=record, headers=headers)
 
         dct={"data": resp}
-        return render(request,'success.html',dct)
+        # print("success")
 
 
 #post_data:今回新たに申請してきたユーザー
 #waiting_data:リクエストマスタに登録されている，　マッチングを待っているユーザー群
 def compare():
     waiting_data = get_requestData()
+    flag=0
+
     for i in range(1, len(waiting_data)):
-        if(waiting_data[0]["sex"]["value"] == waiting_data[i]["sex"]["value"]):
+        if(flag==1):break
+        elif(waiting_data[0]["sex"]["value"] == waiting_data[i]["sex"]["value"]):
             bl = new_code + ":" + waiting_data[i]["station_code"]["value"]
             um = "180" +":"+ waiting_data[i]["range"]["value"]
             station = get_commonStation(bl, um)
@@ -104,7 +169,7 @@ def compare():
                                 um2 = um+":"+ waiting_data[j]["range"]["value"]
                                 station=get_commonStation(bl2, um2)
                                 if "Point" in station["ResultSet"]:
-                                
+
 
                                     for k in range(len(waiting_data)):
                                         if (waiting_data[0]["sex"]["value"] != waiting_data[k]["sex"]["value"] and k > j):
@@ -119,11 +184,14 @@ def compare():
                                                     write_validation(waiting_data, j, i)
                                                     write_validation(waiting_data, k, 0)
                                                     write_validation(waiting_data, 0, k)
+
                                                 else :
                                                     write_validation(waiting_data, 0, j)
                                                     write_validation(waiting_data, j, 0)
                                                     write_validation(waiting_data, k, i)
                                                     write_validation(waiting_data, i, k)
+                                                    # print(station[“ResultSet”][“Point”][“Station”][“Name”])
+                                                flag = 1
                                                 break
                                 else:
                                     continue
@@ -272,7 +340,9 @@ def map(request):
     return render(request, 'map.html',dct)
 
 def execute_matching(request):
-    print(compare())
+    compare()
+    sendLine(userid,text)
+
     return render(request,"success.html")
     # write_validation(waiting_data, i, x)
 
@@ -297,7 +367,7 @@ def regist_query(request):
 
     post_data = {
             "app": "9",
-            "records": {
+            "record": {
                 "userID": {
                     # "value": request.session['userid']
                     "value": 3
@@ -414,4 +484,3 @@ def meat_but_still_eval(request):
     before_records.sort(key=lambda record: record['start_time']['value'])
 
     return render(request,'after_match.html', {'records': before_records})
-
