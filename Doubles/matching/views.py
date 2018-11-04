@@ -182,7 +182,7 @@ def regist_query(request):
                 "sex": {
                     # "type":"DROP_DOWN",
                     # "value":request.session['sex']
-                    "value":"男"
+                    "code":"男"
                     }
                 }
             }
