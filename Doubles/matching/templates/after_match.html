@@ -20,6 +20,7 @@
                 <tr>
                     <th>場所</th>
                     <th>日時</th>
+                    <th>気に入った！</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +28,11 @@
                 <tr>
                     <td>{{ record.station_name.value }}</td>
                     <td>{{ record.date.value }}  {{ record.start_time.value }}</td>
+                    <td> 
+                        <form action="">
+                            <button class="btn btn-primary"> 承認 {{ record.partner.value }} </button>
+                        </form>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

@@ -463,7 +463,7 @@ def meat_but_still_eval(request):
 
     queries = 'query=name = "' + user_name + '" and date > "' + now_date + '" and start_time > "' + now_time + '"'
     print(queries)
-    fields = "fields=date&fields=start_time&fields=station_name"
+    fields = "fields=date&fields=start_time&fields=station_name&fields=partner"
     url = url + "&" + urllib.parse.quote(queries) + "&" + fields
     print(url)
 
@@ -484,4 +484,4 @@ def meat_but_still_eval(request):
 
     before_records.sort(key=lambda record: record['start_time']['value'])
 
-    return render(request,'before_match.html', {'records': before_records})
+    return render(request,'after_match.html', {'records': before_records})
