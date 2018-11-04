@@ -91,6 +91,7 @@ def write_validation(waiting_data, i, x):
                 line_system_id = data_line["records"][0]["line_id_system"]["value"]
                 sendLine(userid, text)
                 print(line_system_id)
+                print(userid)
                 print("テキスト送信")
             # if len(data_line["records"])==1:
             #     print("hello")
