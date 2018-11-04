@@ -208,3 +208,6 @@ def regist_query(request):
     dct = {"session_name":request.session['name']}
     # print(data)
     return render(request,'home.html',dct)
+
+def before_match(request):
+    return render(request,'before_match.html')
